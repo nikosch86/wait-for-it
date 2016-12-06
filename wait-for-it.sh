@@ -13,6 +13,7 @@ Usage:
     -h HOST | --host=HOST       Host or IP under test
     -p PORT | --port=PORT       TCP port under test
                                 Alternatively, you specify the host and port as host:port
+    -c | --curl                 Use curl command to check http endpoints
     -s | --strict               Only execute subcommand if the test succeeds
     -q | --quiet                Don't output any status messages
     -t TIMEOUT | --timeout=TIMEOUT
@@ -32,8 +33,13 @@ wait_for()
     start_ts=$(date +%s)
     while :
     do
-        (echo > /dev/tcp/$HOST/$PORT) >/dev/null 2>&1
-        result=$?
+        if [[ $CURL -eq 1 ]]; then
+            curl --output /dev/null --silent --fail http://$HOST:$PORT >/dev/null 2>&1
+            result=$?
+        else
+            (echo > /dev/tcp/$HOST/$PORT) >/dev/null 2>&1
+            result=$?
+        fi
         if [[ $result -eq 0 ]]; then
             end_ts=$(date +%s)
             echoerr "$cmdname: $HOST:$PORT is available after $((end_ts - start_ts)) seconds"
@@ -43,6 +49,14 @@ wait_for()
     done
     return $result
 }
+
+if hash timeout 2>/dev/null; then
+    # timeout command is available
+    : # noop, because I don't know how to reverse the conditional :(
+else
+    # no timeout, e.g. in osx.  Use perl alternative
+    timeout() { perl -e 'alarm shift; exec @ARGV' "$@"; }
+fi
 
 wait_for_wrapper()
 {
@@ -82,6 +96,10 @@ do
         ;;
         -s | --strict)
         STRICT=1
+        shift 1
+        ;;
+        -c|--curl)
+        CURL=1
         shift 1
         ;;
         -h)
@@ -131,10 +149,11 @@ if [[ "$HOST" == "" || "$PORT" == "" ]]; then
     usage
 fi
 
-TIMEOUT=${TIMEOUT:-15}
+TIMEOUT=${TIMEOUT:-30}
 STRICT=${STRICT:-0}
 CHILD=${CHILD:-0}
 QUIET=${QUIET:-0}
+CURL=${CURL:-0}
 
 if [[ $CHILD -gt 0 ]]; then
     wait_for
