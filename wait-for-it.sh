@@ -179,7 +179,7 @@ if [[ $WAITFORIT_CHILD -gt 0 ]]; then
     WAITFORIT_RESULT=$?
     exit $WAITFORIT_RESULT
 else
-    if [[ $TIMEOUT -gt 0 ]]; then
+    if [[ $WAITFORIT_TIMEOUT -gt 0 ]]; then
         wait_for_wrapper
         WAITFORIT_RESULT=$?
     else
