@@ -106,30 +106,30 @@ do
         shift 1
         ;;
         -h)
-        HOST="$2"
-        if [[ $HOST == "" ]]; then break; fi
+        WAITFORIT_HOST="$2"
+        if [[ $WAITFORIT_HOST == "" ]]; then break; fi
         shift 2
         ;;
         --host=*)
-        HOST="${1#*=}"
+        WAITFORIT_HOST="${1#*=}"
         shift 1
         ;;
         -p)
-        PORT="$2"
-        if [[ $PORT == "" ]]; then break; fi
+        WAITFORIT_PORT="$2"
+        if [[ $WAITFORIT_PORT == "" ]]; then break; fi
         shift 2
         ;;
         --port=*)
-        PORT="${1#*=}"
+        WAITFORIT_PORT="${1#*=}"
         shift 1
         ;;
         -t)
-        TIMEOUT="$2"
-        if [[ $TIMEOUT == "" ]]; then break; fi
+        WAITFORIT_TIMEOUT="$2"
+        if [[ $WAITFORIT_TIMEOUT == "" ]]; then break; fi
         shift 2
         ;;
         --timeout=*)
-        TIMEOUT="${1#*=}"
+        WAITFORIT_TIMEOUT="${1#*=}"
         shift 1
         ;;
         --)
@@ -147,7 +147,7 @@ do
     esac
 done
 
-if [[ "$HOST" == "" || "$PORT" == "" ]]; then
+if [[ "$WAITFORIT_HOST" == "" || "$WAITFORIT_PORT" == "" ]]; then
     echoerr "Error: you need to provide a host and port to test."
     usage
 fi
